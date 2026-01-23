@@ -8,6 +8,7 @@ export const verifyStudentByTeacherService = async (
 ) => {
   const student = await prisma.user.findUnique({
     where: { id: studentId },
+    select: { id: true, role: true, isVerified: true },
   });
 
   if (!student) {
@@ -44,10 +45,21 @@ export const assignMonitorService = async (
 ) => {
   const student = await prisma.user.findUnique({
     where: { id: studentId },
+    select: {
+      id: true,
+      role: true,
+      isVerified: true,
+      isMonitor: true,
+      teacherId: true,
+    },
   });
 
   if (!student) {
     throw new AppError("Student not found", 404);
+  }
+
+  if (student.isMonitor) {
+    throw new AppError("Student is already a monitor", 400);
   }
 
   if (student.role !== Role.STUDENT) {
