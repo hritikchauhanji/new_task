@@ -22,5 +22,5 @@ async function seed() {
 }
 
 seed().catch((err) => {
-  console.log("Error", err);
+  console.log("Error occur when principal seeding", err);
 });
