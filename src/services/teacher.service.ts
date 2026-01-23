@@ -58,16 +58,20 @@ export const assignMonitorService = async (
     throw new AppError("Student not found", 404);
   }
 
-  if (student.isMonitor) {
-    throw new AppError("Student is already a monitor", 400);
-  }
-
   if (student.role !== Role.STUDENT) {
     throw new AppError("Only students can be monitors", 400);
   }
 
   if (!student.isVerified) {
     throw new AppError("Student must be verified first", 400);
+  }
+
+  if (student.isMonitor) {
+    throw new AppError("Student is already a monitor", 400);
+  }
+
+  if (student.teacherId && student.teacherId !== teacherId) {
+    throw new AppError("Student is already assigned to another teacher", 403);
   }
 
   const monitorCount = await prisma.user.count({
