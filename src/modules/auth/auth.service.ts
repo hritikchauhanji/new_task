@@ -1,14 +1,15 @@
 import type { PrismaClient } from "@prisma/client";
-import { loginSchema, registerSchema } from "../validator/auth.validator.js";
-import AppError from "../utils/appError.js";
+import { loginSchema, type RegisterSchemaType } from "./auth.schema.js";
+import AppError from "../../utils/appError.js";
 import bcrypt from "bcrypt";
-import { generateToken } from "../utils/jwt.js";
+import type { FastifyInstance } from "fastify";
 
-export async function registerUserService(prisma: PrismaClient, data: unknown) {
-  const { name, email, password, role } = registerSchema.parse(data);
-
+export async function registerUserService(
+  prisma: PrismaClient,
+  data: RegisterSchemaType,
+) {
   const existUser = await prisma.user.findUnique({
-    where: { email },
+    where: { email: data.email },
     select: { id: true },
   });
 
@@ -16,14 +17,14 @@ export async function registerUserService(prisma: PrismaClient, data: unknown) {
     throw new AppError("Email already exists", 409);
   }
 
-  const hash = await bcrypt.hash(password, 10);
+  const hash = await bcrypt.hash(data.password, 10);
 
   const user = await prisma.user.create({
     data: {
-      name,
-      email,
+      name: data.name,
+      email: data.email,
       password: hash,
-      role,
+      role: data.role,
       isVerified: false,
     },
     select: {
@@ -39,10 +40,10 @@ export async function registerUserService(prisma: PrismaClient, data: unknown) {
   return user;
 }
 
-export const loginService = async (prisma: PrismaClient, body: unknown) => {
+export const loginService = async (server: FastifyInstance, body: unknown) => {
   const { email, password } = loginSchema.parse(body);
 
-  const user = await prisma.user.findUnique({
+  const user = await server.prisma.user.findUnique({
     where: { email },
     select: {
       id: true,
@@ -66,12 +67,13 @@ export const loginService = async (prisma: PrismaClient, body: unknown) => {
     throw new AppError("Invalid credentials", 401);
   }
 
-  const token = generateToken({
+  const payload = {
     id: user.id,
     role: user.role,
-  });
+  };
 
-  // AI
+  const token = server.jwt.sign(payload);
+
   const { password: _, ...safeUser } = user;
 
   return { token, user: safeUser };

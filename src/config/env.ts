@@ -1,12 +1,6 @@
 import "dotenv/config";
-import type { SignOptions } from "jsonwebtoken";
 
-const requiredEnvs = [
-  "PORT",
-  "DATABASE_URL",
-  "JWT_SECRET",
-  "JWT_EXPIRES_IN",
-] as const;
+const requiredEnvs = ["PORT", "DATABASE_URL", "JWT_SECRET", "JWT_EXPIRES_IN"];
 
 requiredEnvs.forEach((key) => {
   if (!process.env[key]) {
@@ -16,10 +10,10 @@ requiredEnvs.forEach((key) => {
 
 const env = {
   port: Number(process.env.PORT),
-  nodeEnv: process.env.NODE_ENV ?? "development",
+  nodeEnv: process.env.NODE_ENV!,
   databaseUrl: process.env.DATABASE_URL!,
   jwtSecret: process.env.JWT_SECRET!,
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN as SignOptions["expiresIn"],
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN!,
 };
 
 export { env };

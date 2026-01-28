@@ -1,12 +1,13 @@
 import { PrismaClient, Role } from "@prisma/client";
-import AppError from "../utils/appError.js";
+import AppError from "../../utils/appError.js";
+import type { UserIdType } from "./principal.schema.js";
 
 export const verifyUserByPrincipalService = async (
   prisma: PrismaClient,
-  userId: string,
+  param: UserIdType,
 ) => {
   const user = await prisma.user.findUnique({
-    where: { id: userId },
+    where: { id: param.userId },
     select: {
       id: true,
       role: true,
@@ -27,7 +28,7 @@ export const verifyUserByPrincipalService = async (
   }
 
   return prisma.user.update({
-    where: { id: userId },
+    where: { id: param.userId },
     data: { isVerified: true },
     select: {
       id: true,

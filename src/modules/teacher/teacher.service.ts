@@ -1,13 +1,14 @@
 import { PrismaClient, Role } from "@prisma/client";
-import AppError from "../utils/appError.js";
+import AppError from "../../utils/appError.js";
+import type { StudentIdType } from "./teacher.schema.js";
 
 export const verifyStudentByTeacherService = async (
   prisma: PrismaClient,
   teacherId: string,
-  studentId: string,
+  param: StudentIdType,
 ) => {
   const student = await prisma.user.findUnique({
-    where: { id: studentId },
+    where: { id: param.studentId },
     select: { id: true, role: true, isVerified: true },
   });
 
@@ -24,7 +25,7 @@ export const verifyStudentByTeacherService = async (
   }
 
   return prisma.user.update({
-    where: { id: studentId },
+    where: { id: param.studentId },
     data: {
       isVerified: true,
       teacherId,
@@ -41,10 +42,10 @@ export const verifyStudentByTeacherService = async (
 export const assignMonitorService = async (
   prisma: PrismaClient,
   teacherId: string,
-  studentId: string,
+  param: StudentIdType,
 ) => {
   const student = await prisma.user.findUnique({
-    where: { id: studentId },
+    where: { id: param.studentId },
     select: {
       id: true,
       role: true,
@@ -86,7 +87,7 @@ export const assignMonitorService = async (
   }
 
   return prisma.user.update({
-    where: { id: studentId },
+    where: { id: param.studentId },
     data: {
       isMonitor: true,
       teacherId,
