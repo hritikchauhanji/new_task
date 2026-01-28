@@ -1,5 +1,9 @@
 import type { PrismaClient } from "@prisma/client";
-import { loginSchema, type RegisterSchemaType } from "./auth.schema.js";
+import {
+  loginSchema,
+  type LoginSchemaType,
+  type RegisterSchemaType,
+} from "./auth.schema.js";
 import AppError from "../../utils/appError.js";
 import bcrypt from "bcrypt";
 import type { FastifyInstance } from "fastify";
@@ -40,11 +44,12 @@ export async function registerUserService(
   return user;
 }
 
-export const loginService = async (server: FastifyInstance, body: unknown) => {
-  const { email, password } = loginSchema.parse(body);
-
+export const loginService = async (
+  server: FastifyInstance,
+  body: LoginSchemaType,
+) => {
   const user = await server.prisma.user.findUnique({
-    where: { email },
+    where: { email: body.email },
     select: {
       id: true,
       isVerified: true,
@@ -62,7 +67,7 @@ export const loginService = async (server: FastifyInstance, body: unknown) => {
     throw new AppError("Account not verified. Please contact admin.", 403);
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = await bcrypt.compare(body.password, user.password);
   if (!isPasswordValid) {
     throw new AppError("Invalid credentials", 401);
   }
