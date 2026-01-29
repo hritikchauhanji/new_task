@@ -2,7 +2,14 @@ import { ZodError } from "zod";
 import AppError from "./appError.js";
 import type { FastifyReply } from "fastify";
 
-const handleError = (reply: FastifyReply, error: unknown) => {
+const handleError = (reply: FastifyReply, error: any) => {
+  if (error.code === "FST_REQ_FILE_TOO_LARGE") {
+    return reply.status(400).send({
+      success: false,
+      message: "File size must be less than 2MB",
+    });
+  }
+
   if (error instanceof ZodError) {
     const errors: Record<string, string> = {};
 
