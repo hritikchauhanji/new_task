@@ -1,4 +1,4 @@
-import { fastifyJwt, type FastifyJWTOptions } from "@fastify/jwt";
+import { type FastifyJWTOptions } from "@fastify/jwt";
 import { env } from "../config/env.js";
 import "@fastify/jwt";
 

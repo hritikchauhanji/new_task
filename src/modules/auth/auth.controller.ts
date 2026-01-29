@@ -41,19 +41,18 @@ export const register = async (req: FastifyRequest, reply: FastifyReply) => {
 
     if (!parsed.success) {
       throw parsed.error;
-    } else {
-      const user = await registerUserService(req.server, {
-        ...parsed.data,
-        fileBuffer,
-        fileName,
-      });
-
-      return reply.code(201).send({
-        success: true,
-        message: "Registration successful. Wait for verification.",
-        data: user,
-      });
     }
+    const user = await registerUserService(req.server, {
+      ...parsed.data,
+      fileBuffer,
+      fileName,
+    });
+
+    return reply.code(201).send({
+      success: true,
+      message: "Registration successful. Wait for verification.",
+      data: user,
+    });
   } catch (error) {
     handleError(reply, error);
   }
@@ -68,21 +67,20 @@ export const login = async (
 
     if (!parsed.success) {
       throw parsed.error;
-    } else {
-      const { token, user } = await loginService(req.server, parsed.data);
-
-      return reply.send({
-        success: true,
-        message: "Login Successfully",
-        token,
-        user: {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          isVerified: user.isVerified,
-        },
-      });
     }
+    const { token, user } = await loginService(req.server, parsed.data);
+
+    return reply.send({
+      success: true,
+      message: "Login Successfully",
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        isVerified: user.isVerified,
+      },
+    });
   } catch (error) {
     handleError(reply, error);
   }

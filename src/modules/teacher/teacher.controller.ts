@@ -15,19 +15,18 @@ export const verifyStudent = async (
 
     if (!parsed.success) {
       throw parsed.error;
-    } else {
-      const student = await verifyStudentByTeacherService(
-        req.server.prisma,
-        req.user.id,
-        parsed.data,
-      );
-
-      return reply.send({
-        success: true,
-        message: "Student verified successfully",
-        data: student,
-      });
     }
+    const student = await verifyStudentByTeacherService(
+      req.server.prisma,
+      req.user.id,
+      parsed.data,
+    );
+
+    return reply.send({
+      success: true,
+      message: "Student verified successfully",
+      data: student,
+    });
   } catch (error) {
     handleError(reply, error);
   }
@@ -41,7 +40,7 @@ export const assignMonitor = async (
     const parsed = studentIdSchema.safeParse(req.params);
 
     if (!parsed.success) {
-      return parsed.error;
+      throw parsed.error;
     }
     const monitor = await assignMonitorService(
       req.server.prisma,

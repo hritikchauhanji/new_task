@@ -12,18 +12,17 @@ export const verifyUserByPrincipal = async (
 
     if (!parsed.success) {
       throw parsed.error;
-    } else {
-      const user = await verifyUserByPrincipalService(
-        req.server.prisma,
-        parsed.data,
-      );
-
-      return reply.send({
-        success: true,
-        message: "User verified successfully",
-        data: user,
-      });
     }
+    const user = await verifyUserByPrincipalService(
+      req.server.prisma,
+      parsed.data,
+    );
+
+    return reply.send({
+      success: true,
+      message: "User verified successfully",
+      data: user,
+    });
   } catch (error) {
     handleError(reply, error);
   }
