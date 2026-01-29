@@ -41,20 +41,19 @@ export const assignMonitor = async (
     const parsed = studentIdSchema.safeParse(req.params);
 
     if (!parsed.success) {
-      parsed.error;
-    } else {
-      const monitor = await assignMonitorService(
-        req.server.prisma,
-        req.user.id,
-        parsed.data,
-      );
-
-      return reply.send({
-        success: true,
-        message: "Monitor assigned successfully",
-        data: monitor,
-      });
+      return parsed.error;
     }
+    const monitor = await assignMonitorService(
+      req.server.prisma,
+      req.user.id,
+      parsed.data,
+    );
+
+    return reply.send({
+      success: true,
+      message: "Monitor assigned successfully",
+      data: monitor,
+    });
   } catch (error) {
     handleError(reply, error);
   }

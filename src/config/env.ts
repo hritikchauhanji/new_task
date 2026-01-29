@@ -1,6 +1,12 @@
 import "dotenv/config";
 
-const requiredEnvs = ["PORT", "DATABASE_URL", "JWT_SECRET", "JWT_EXPIRES_IN"];
+const requiredEnvs = [
+  "PORT",
+  "DATABASE_URL",
+  "JWT_SECRET",
+  "JWT_EXPIRES_IN",
+  "CLOUDINARY_URL",
+];
 
 requiredEnvs.forEach((key) => {
   if (!process.env[key]) {
@@ -14,6 +20,7 @@ const env = {
   databaseUrl: process.env.DATABASE_URL!,
   jwtSecret: process.env.JWT_SECRET!,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN!,
+  cloudinaryUrl: process.env.CLOUDINARY_URL!,
 };
 
 export { env };

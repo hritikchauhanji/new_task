@@ -1,18 +1,24 @@
-import type { PrismaClient } from "@prisma/client";
 import {
-  loginSchema,
   type LoginSchemaType,
   type RegisterSchemaType,
 } from "./auth.schema.js";
 import AppError from "../../utils/appError.js";
 import bcrypt from "bcrypt";
-import type { FastifyInstance } from "fastify";
+import { type FastifyInstance } from "fastify";
+import { uploadFileLocalPath } from "../../utils/fileUpload.js";
+import {
+  deleteLocalFile,
+  uploadLocalFileToCloudinary,
+} from "../../utils/uploadCloudinary.js";
 
 export async function registerUserService(
-  prisma: PrismaClient,
-  data: RegisterSchemaType,
+  server: FastifyInstance,
+  data: RegisterSchemaType & {
+    fileBuffer: Buffer;
+    fileName: string;
+  },
 ) {
-  const existUser = await prisma.user.findUnique({
+  const existUser = await server.prisma.user.findUnique({
     where: { email: data.email },
     select: { id: true },
   });
@@ -21,14 +27,37 @@ export async function registerUserService(
     throw new AppError("Email already exists", 409);
   }
 
+  const uploadedImage = await uploadFileLocalPath(
+    data.fileBuffer,
+    data.fileName,
+  );
+
+  if (!uploadedImage) {
+    throw new AppError("File not save locally", 500);
+  }
+
+  const cloudinaryUrl = await uploadLocalFileToCloudinary(
+    server,
+    uploadedImage.filePath,
+    uploadedImage.fileName,
+  );
+
+  if (!cloudinaryUrl) {
+    await deleteLocalFile(uploadedImage.filePath);
+    throw new AppError("Image not upload on cloudinary", 500);
+  }
+
+  await deleteLocalFile(uploadedImage.filePath);
+
   const hash = await bcrypt.hash(data.password, 10);
 
-  const user = await prisma.user.create({
+  const user = await server.prisma.user.create({
     data: {
       name: data.name,
       email: data.email,
       password: hash,
       role: data.role,
+      imageUrl: cloudinaryUrl,
       isVerified: false,
     },
     select: {
@@ -36,6 +65,7 @@ export async function registerUserService(
       name: true,
       email: true,
       role: true,
+      imageUrl: true,
       isVerified: true,
       createdAt: true,
     },

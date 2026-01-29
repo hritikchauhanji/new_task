@@ -6,6 +6,10 @@ import jwtOptions from "./plugins/jwt.plugin.js";
 import jwt from "@fastify/jwt";
 import prismaPlugin from "./plugins/prisma.plugin.js";
 import authPlugin from "./plugins/auth.plugin.js";
+import multipart from "@fastify/multipart";
+import multipartOptions from "./plugins/multipart.plugin.js";
+import cloudinary from "fastify-cloudinary";
+import { env } from "./config/env.js";
 
 const envToLogger = {
   development: {
@@ -28,6 +32,8 @@ const app = Fastify({
 app.register(prismaPlugin);
 app.register(authPlugin);
 app.register(jwt, jwtOptions);
+app.register(multipart, multipartOptions);
+app.register(cloudinary, { url: env.cloudinaryUrl });
 app.register(authRoutes, { prefix: "/api/auth" });
 app.register(principalRoutes, { prefix: "/api/principal" });
 app.register(teacherRoutes, { prefix: "/api/teacher" });
